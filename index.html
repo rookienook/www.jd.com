@@ -1,12 +1,797 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-    
-    </body>
+
+<head>
+    <title>京东JD </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../css/index.min.css" rel="stylesheet">
+    <link href="../css/reset.min.css" rel="stylesheet">
+    <link rel="text/css" href="../js/index.js">
+    <script src="../js/iconfont.js"></script>
+    <script src="../js/jquery-1.11.3.js"></script>
+    <script src="../js/jquery.cookie.js"></script>
+    <script src="../js/startMove.js"></script>
+    <script src="../js/parabola.js"></script>
+    <!-- 购物车 -->
+    <script type="text/javascript">
+        $(function () {
+            sc_num();
+            //加载数据
+            $.ajax({
+                url: "../data/data.json",
+                success: function (arr) {
+                    var str = ``;
+                    for (var i = 0; i < arr.length; i++) {
+                        str += `<li class="more2_item" >
+                        <a class="more2_lk" href="#" title="${arr[i].t}">
+                            <div class="more2_img">
+                                <img src="${arr[i].img}" alt="${arr[i].t}">
+                            </div>
+                            <div class="more2_info">
+                                <p class="more2_info_name">
+                                    ${arr[i].t}
+                                </p>
+                                <div class="mod_below">
+                                    <div class="mod_price">
+                                        <i>¥</i>
+                                        <span class="more2_info_price_txt">${arr[i].op}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <button id="${arr[i].id}" class="mod_shoppingCart">加入购物车</button>
+                    </li>`
+
+                    }
+                    $("#shoppingList").html(str);
+                },
+                error: function (msg) {
+                    console.log(msg);
+                }
+            })
+
+            //给加入购物车按钮添加点击
+            //设置cookie <1>只能存储字符串  <2>cookie大小限制
+            $("#shoppingList").on("click", ".mod_shoppingCart", function () {
+                //取出当前点击加入购物车按钮的id
+                var id = this.id;
+                console.log(this)
+                //1、判断是否是第一次添加
+                // var first = $.cookie("goods") == null ? true : false;
+                var first = !($.cookie("goods"));
+                if (first) {
+                    $.cookie("goods", JSON.stringify([{
+                        id: id,
+                        num: 1
+                    }]), {
+                        expires: 7
+                    });
+                } else {
+                    //2、不是第一次，判定之前是否添加过
+                    var cookieArr = JSON.parse($.cookie("goods"));
+                    var same = false; //假设没有相同的数据
+                    for (var i = 0; i < cookieArr.length; i++) {
+                        if (cookieArr[i].id == id) {
+                            same = true;
+                            break;
+                        }
+                    }
+                    same ? cookieArr[i].num++ : cookieArr.push({
+                        id: id,
+                        num: 1
+                    });
+
+                    //3、将处理完的数据存储回去
+                    $.cookie("goods", JSON.stringify(cookieArr), {
+                        expires: 7
+                    })
+                }
+                // sc_msg();
+                sc_num();
+                // ballMove(this);
+            })
+            //处理数量
+            function sc_num() {
+                var cookieStr = $.cookie("goods");
+                var sum = 0;
+                if (cookieStr) {
+                    var cookieArr = JSON.parse(cookieStr);
+                    for (var i = 0; i < cookieArr.length; i++) {
+                        sum += cookieArr[i].num;
+                    }
+                }
+                $("#shopping-amount").html(sum);
+            }
+        })
+    </script>
+
+</head>
+
+<body>
+    <div id="top-banner">
+        <div class="top-ba">
+            <a href=""><img src="../images/js.jpg"></a>
+            <div id="xx"><a href="">X</a></div>
+        </div>
+    </div>
+    <div id="shortcut">
+        <div class="w">
+            <ul class="fl">
+
+                <li class="shortcut_btn"><svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-icon-test1"></use>
+                    </svg>
+                    山东</li>
+            </ul>
+            <ul class="fr">
+                <li class="dropdown fl">你好，请登录&emsp;免费注册</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">我的订单</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">我的京东</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">京东会员</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">企业采购</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">客户服务</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">网站导航</li>
+                <li class="spacing">|</li>
+                <li class="dropdown fl">手机京东</li>
+
+            </ul>
+        </div>
+    </div>
+    <div id="head">
+        <div class="w">
+            <div class="logo"></div>
+            <div id="search">
+
+                <div class="search-m">
+                    <div class="form" id="form_serachbox" role="serachbox">
+                        <input class="text" aria-label="搜索" style="background:transparent;">
+                        <span class="photo-search-btn">
+                            <svg class="icon" aria-hidden="true">
+                                <use xlink:href="#icon-zhaoxiangji"></use>
+                            </svg>
+                            <a href="javascript:login();" class="photo-search-login"></a>
+                        </span>
+                        <button class="button" aria-label="搜索">
+                            <svg class="icon" aria-hidden="true">
+                                <use xlink:href="#icon-zhaoxiangji"></use>
+                            </svg></button>
+
+                    </div>
+
+                    <div id="settleup" class="dropdown" clstag="h|keycount|head|cart_null">
+                        <div class="cw-icon">
+                            <svg class="icon" aria-hidden="true">
+                                <use xlink:href="#icon-che"></use>
+                            </svg>
+
+                            <a target="_blank" href="#">我的购物车</a>
+                            <i class="ci-count" id="shopping-amount">0</i>
+                        </div>
+
+                    </div>
+                    <div class="clr"></div>
+                </div>
+                <script>
+                    $(function () {
+                        $(window).scroll(function () {
+                            if ($(window).scrollTop() > 300) {
+                                $("#search").css({
+                                        "position": "fixed",
+                                        "top": 0,
+                                        "left": 0,
+                                        "background": "#fff",
+                                        "width": "100%",
+                                        "height": "50px",
+                                        "border-bottom": "2px solid #f10214",
+                                        "box-shadow": " 2px 2px 2px rgba(0,0,0,.2)"
+                                    }),
+                                    $("#form_serachbox").css({
+                                        "top": "8px"
+                                    }), $(".dropdown").css({
+                                        "top": "8px"
+                                    });
+
+
+                            } else {
+                                $("#search").css({
+                                    "position": "static",
+                                    "border-bottom": "none",
+                                    "box-shadow": " none"
+                                }), $("#form_serachbox").css({
+                                    "top": "25px"
+                                }), $(".dropdown").css({
+                                    "top": "25px"
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+            </div>
+            <div id="navitems">
+                <ul id="navitems-group1">
+                    <li class="fore1"><a class="navitems-lk" href="#">秒杀</a></li>
+                    <li class="fore2"><a class="navitems-lk" href="#">优惠券</a></li>
+                    <li class="fore3"><a class="navitems-lk" href="#">PLUS会员</a></li>
+                    <li class="fore4"><a class="navitems-lk" href="#">品牌闪购</a></li>
+                    <li class="fore5"><a class="navitems-lk" href="#">拍卖</a></li>
+                    <li class="fore6"><a class="navitems-lk" href="#">京东家电</a></li>
+                    <li class="fore7"><a class="navitems-lk" href="#">京东超市</a></li>
+                    <li class="fore8"><a class="navitems-lk" href="#">京东生鲜</a></li>
+                    <li class="fore9"><a class="navitems-lk" href="#">京东国际</a></li>
+                    <li class="fore10"><a class="navitems-lk" href="#">京东金融</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="fs">
+        <div class="grid_c1 fs_inner">
+            <div class="fs_col1">
+                <!-- 左侧导航 -->
+                <div id="J_cate" class="cate J_cate cate18">
+                    <!-- 二级菜单 -->
+                    <ul class="JS_navCtn cate_menu">
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">家用电器</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">手机</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">运营商</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">数码</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#/">电脑</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">办公</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#l">家居</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">家具</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">家装</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">厨具</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">男装</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">女装</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">童装</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">内衣</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">美妆</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">个护清洁</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">宠物</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">女鞋</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">箱包</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">钟表</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">珠宝</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">男鞋</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">运动</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">户外</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">房产</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">汽车</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">汽车用品</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">母婴</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">玩具乐器</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">食品</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">酒类</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">生鲜</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">特产</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">艺术</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">礼品鲜花</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">农资绿植</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">医药保健</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">计生情趣</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">图书</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">文娱</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">教育</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">电子书</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">机票</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">酒店</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">旅游</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">生活</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">理财</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">众筹</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">白条</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">保险</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">安装</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">维修</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">清洗</a>
+                            <span class="cate_menu_line">/</span>
+                            <a target="_blank" class="cate_menu_lk" href="#">二手</a>
+                        </li>
+                        <li class="cate_menu_item">
+                            <a target="_blank" class="cate_menu_lk" href="#">工业品</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="fs_col2">
+                <div id="J_focus" class="focus">
+                    <div class="sliderBannerWrapper">
+                        <!-- 轮播图 -->
+                        <div class="banner">
+                            <ul class="imgBox clearFix">
+                                <!-- 左右都能够进行循环轮播效果 -->
+                                <li><img src="../images/l5.jpg"></li>
+                                <li><img src="../images/l1.jpg"></li>
+                                <li><img src="../images/l2.jpg"></li>
+                                <li><img src="../images/l3.jpg"></li>
+                                <li><img src="../images/l4.jpg"></li>
+                                <li><img src="../images/l5.jpg"></li>
+                                <li><img src="../images/l1.jpg"></li>
+                            </ul>
+
+                            <ol class="pointBox">
+                                <li class="active"></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ol>
+
+                            <div class="leftRightTabs">
+                                <a href="#" class="left">
+                                </a> <a href="#" class="right">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="J_fs_col3" class="fs_col3">
+                <div id="J_user" class="J_user user mod_loading">
+                    <div class="user_inner user_plus0">
+                        <div class="J_user_avatar user_avatar">
+                            <img src="../images/个人头像.png">
+                        </div>
+                        <div class="user_show">
+                            <a href="javascript:login(true);" class="user_tip">Hi~欢迎逛京东！</a>
+                            <p><a href="javascript:login()" class="user_login">登录</a>&nbsp;|&nbsp;<a
+                                    href="javascript:regist()" class="user_reg">注册</a></p>
+                        </div>
+                    </div>
+                    <div class="user_profit">
+                        <div class="user_profit_lk">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="news2">
+                    <div class="news_hd">
+                        <h5 class="news_tit">京东快报</h5><a href="#" class="news_more">更多</a>
+                    </div>
+                    <ul class="news_list">
+                        <li class="news_item news_item__recommend">
+                            <span class="news_tag">热议</span>
+                            TOTO智能马桶在手，干净整洁的卫浴间环境不愁
+                        </li>
+                        <li class="news_item news_item__recommend">
+                            <span class="news_tag">推荐</span>
+                            票友圈装优雅不叫真优雅，想要表里如一得这样
+                        </li>
+                        <li class="news_item news_item__recommend">
+                            <span class="news_tag">热门</span>
+                            冲奶粉不做这个动作，奶粉最贵都放浪费
+                        </li>
+                        <li class="news_item news_item__recommend">
+                            <span class="news_tag">HOT</span>
+                            传承百年的高端家电，看德国的美诺如何撩动你不爱洗衣的心
+                        </li>
+
+                    </ul>
+
+                </div>
+            </div>
+            <div class="ms">
+                <div class="mm">
+                    <h3>京东快报</h3>
+                    <div class="extra"><a href="">更多 &gt;</a></div>
+                </div>
+                <div class="mmm">
+                    <ul>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat;"></i>
+                                <span class="ci-bottom">话费</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat 0 -25px;"></i>
+                                <span class="ci-bottom">机票</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat 0 -50px;"></i>
+                                <span class="ci-bottom">电影票</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat 0 -75px;"></i>
+                                <span class="ci-bottom">游戏</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat -25px -150px;"></i>
+                                <span class="ci-bottom">酒店</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat -25px -175px;"></i>
+                                <span class="ci-bottom">火车票</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat -25px -200px;"></i>
+                                <span class="ci-bottom">理财</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat -25px -275px;"></i>
+                                <span class="ci-bottom">礼品卡</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i class="ci-left"
+                                    style="background:url(../images/568dfdbdN4f7d7ca3.png)no-repeat -25px -225px;"></i>
+                                <span class="ci-bottom">白条</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="J_feeds">
+        <div class="more2">
+            <div id="floorhd">
+                <h3 class="floorhd_tit">
+                    为你推荐
+                </h3>
+            </div>
+            <div class="grid_c1">
+                <ul id="shoppingList">
+                    <!-- <li class="more2_item more2_item_good">
+                        <a class="more2_lk" href="#" title="#">
+                            <div class="more2_img">
+                                <img src="../images/1.jpg" alt="">
+                            </div>
+                            <div class="more2_info">
+                                <p class="more2_info_name">
+                                    【酒厂直营】五星酒厂 五星老酒纯粮食贵州酱香型53度白酒特价 五星老酒
+                                </p>
+                                <div class="mod_below">
+                                    <div class="mod_price">
+                                        <i>¥</i>
+                                        <span class="more2_info_price_txt">39.80</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <button class="mod_shoppingCart">加入购物车</button>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- 页面底部 部分 start -->
+    <footer>
+        <!-- 服务模块 -->
+        <div class="service">
+            <div class="wrap">
+                <ul>
+                    <li>
+                        <h5>多</h5>
+                        <p>品类齐全，轻松购物</p>
+                    </li>
+                    <li>
+                        <h5>快</h5>
+                        <p>多仓直发，极速配送</p>
+                    </li>
+                    <li>
+                        <h5>好</h5>
+                        <p>正品行货，精致服务</p>
+                    </li>
+                    <li>
+                        <h5>省</h5>
+                        <p>天天低价，畅选无忧</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 帮助模块 -->
+        <div class="wrap help">
+            <!-- wrap和help的ccs样式同时适用于div -->
+            <div class="fl">
+                <dl>
+                    <dt>购物指南</dt>
+                    <dd><a href="#">购物流程</a></dd>
+                    <dd><a href="#">会员介绍</a></dd>
+                    <dd><a href="#">生活旅行</a></dd>
+                    <dd><a href="#">常见问题</a></dd>
+                    <dd><a href="#">大家电</a></dd>
+                    <dd><a href="#">联系客服</a></dd>
+                </dl>
+                <dl>
+                    <dt>配送方式</dt>
+                    <dd><a href="#">上门自提</a></dd>
+                    <dd><a href="#">211限时达</a></dd>
+                    <dd><a href="#">配送服务查询</a></dd>
+                    <dd><a href="#">配送费收取标准</a></dd>
+                    <dd><a href="#">海外配送</a></dd>
+                </dl>
+                <dl>
+                    <dt>支付方式</dt>
+                    <dd><a href="#">货到付款</a></dd>
+                    <dd><a href="#">在线支付</a></dd>
+                    <dd><a href="#">分期付款</a></dd>
+                    <dd><a href="#">邮局汇款</a></dd>
+                    <dd><a href="#">公司转账</a></dd>
+                </dl>
+                <dl>
+                    <dt>售后服务</dt>
+                    <dd><a href="#">售后政策</a></dd>
+                    <dd><a href="#">价格保护</a></dd>
+                    <dd><a href="#">退款说明</a></dd>
+                    <dd><a href="#">返修/退换货</a></dd>
+                    <dd><a href="#">取消订单</a></dd>
+                </dl>
+                <dl>
+                    <dt>特色服务</dt>
+                    <dd><a href="#">夺宝岛</a></dd>
+                    <dd><a href="#">DIY装机</a></dd>
+                    <dd><a href="#">延保服务</a></dd>
+                    <dd><a href="#">京东E卡</a></dd>
+                    <dd><a href="#">京东通信</a></dd>
+                    <dd><a href="#">京东JD+</a></dd>
+                </dl>
+            </div>
+            <div class="fr coverage">
+                <h5>京东自营覆盖区县</h5>
+                <p>京东已向全国2661个区县提供自营配送服务，支持货到付款、POS机刷卡和售后上门服务。</p>
+                <a href="#">查看详情&gt;</a>
+            </div>
+        </div>
+        <!-- 底部版权模块 -->
+        <div class="wrap copyright">
+            <p>
+                <a href="#">关于我们</a>
+                <span> | </span>
+                <a href="#">联系我们</a>
+                <span> | </span>
+                <a href="#">联系客服</a>
+                <span> | </span>
+                <a href="#">合作招商</a>
+                <span> | </span>
+                <a href="#">商家帮助</a>
+                <span> | </span>
+                <a href="#">营销中心</a>
+                <span> | </span>
+                <a href="#">手机京东</a>
+                <span> | </span>
+                <a href="#">友情链接</a>
+                <span> | </span>
+                <a href="#">销售联盟</a>
+                <span> | </span>
+                <a href="#">京东社区</a>
+                <span> | </span>
+                <a href="#">风险监测</a>
+                <span> | </span>
+                <a href="#">京东公益</a>
+                <span> | </span>
+                <a href="#">English Site</a>
+                <span> | </span>
+                <a href="#">Media &amp; IR</a>
+            </p>
+            <div class="register">
+                <p><a href="#">京公网安备 11000002000088号</a><span> | </span>
+                    京ICP证070359号<span> | </span>
+                    <a href="#">互联网药品信息服务资格证编号(京)-经营性-2014-0008</a><span> | </span>
+                    新出发京零 字第大120007号
+                </p>
+                <p>互联网出版许可证编号新出网证(京)字150号<span> | </span><a href="#">出版物经营许可证</a><span> |
+                    </span>网络文化经营许可证京网文[2014]2148-348号<span> | </span>违法和不良信息举报电话：4006561155
+                </p>
+                <p>Copyright © 2004 - 2018 京东JD.com 版权所有<span> | </span>
+                    消费者维权热线：4006067733 &nbsp;&nbsp;<a href="#">经营证照</a><span> | </span>
+                    (京)网械平台备字(2018)第00003号
+                </p>
+                <p><a href="#"><i class="Global"></i>Global Site</a><span> | </span>
+                    <a href="#"><i class="Ca"></i>Сайт России</a><span> | </span>
+                    <a href="#"><i class="Situs"></i>Situs Indonesia</a><span> | </span>
+                    <a href="#"><i class="Sitio"></i>Sitio de España</a><span> | </span>
+                    <a href="#"><i class="Thailand"></i>เว็บไซต์ประเทศไทย</a>
+                </p>
+                <p>京东旗下网站：<a href="#">京东钱包</a><span> | </span><a href="#">京东云</a></p>
+            </div>
+            <p class="foot-icon">
+                <a href="#"></a>
+                <a href="#"></a>
+                <a href="#"></a>
+                <a href="#"></a>
+                <a href="#"></a>
+                <a href="#"></a>
+            </p>
+        </div>
+    </footer>
+</body>
+<!-- 轮播图 -->
+<script>
+    window.onload = function () {
+        const oBanner = document.querySelector(".banner");
+        const oUl = document.querySelector(".banner .imgBox");
+        const aBtns = document.querySelectorAll(".banner .pointBox li");
+        const LeftANDRightBtn = document.querySelectorAll(".leftRightTabs a");
+        let iNow = 1; //代表当前显示的图片的下标
+        let timer = null;
+        let isRunning = false; //代表当前动画是否在执行。
+
+        //一开始就要调用一次
+        timerInner();
+
+        //点击按钮的时候，进行小圆点切换和轮播图的切换
+        for (var i = 0; i < aBtns.length; i++) {
+            aBtns[i].index = i;
+            aBtns[i].onclick = function () {
+                iNow = this.index + 1;
+                tab();
+            };
+        }
+
+        //自动轮播
+        function timerInner() {
+            timer = setInterval(function () {
+                iNow++;
+                tab();
+            }, 2000);
+        }
+
+        //实现轮播效果
+        function tab() {
+
+            // console.log(iNow);
+            for (var i = 0; i < aBtns.length; i++) {
+                aBtns[i].className = "";
+            }
+            if (iNow >= aBtns.length + 1) {
+                aBtns[0].className = "active";
+            } else if (iNow == 0) {
+                aBtns[aBtns.length - 1].className = "active";
+            } else {
+                aBtns[iNow - 1].className = "active";
+            }
+
+            //开始动画
+            isRunning = true;
+            startMove(oUl, {
+                left: iNow * -790
+            }, function () {
+                //判断最后一张图片结束的时候
+                if (iNow == aBtns.length + 1) {
+                    iNow = 1;
+                    oUl.style.left = "-790px";
+
+                    //判断第一张图片的时候
+                } else if (iNow == 0) {
+                    iNow = 5;
+                    oUl.style.left = iNow * -790 + "px";
+                }
+                //这里动画结束
+                isRunning = false;
+            });
+        }
+
+        //给banner添加鼠标的移入和移出
+        oBanner.onmouseenter = function () {
+            clearInterval(timer);
+        };
+        oBanner.onmouseleave = function () {
+            //重新启动动画
+            timerInner();
+        };
+
+        //添加左右按钮的点击
+        LeftANDRightBtn[0].onclick = function () {
+            if (!isRunning) {
+                iNow--;
+                tab();
+            }
+            return false;
+        };
+
+        LeftANDRightBtn[1].onclick = function () {
+            if (!isRunning) {
+                iNow++;
+                tab();
+            }
+            return false;
+        };
+
+        //【注】这里的防抖时间，要大于动画的执行时间。
+    };
+</script>
+
+
+
 </html>
